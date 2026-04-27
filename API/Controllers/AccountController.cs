@@ -16,6 +16,12 @@ namespace API.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto register)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage));
+                return BadRequest(new { Errors = errors });
+            }
+            
             if (await UserExists(register.Email)) return BadRequest("Email is already taken");
             using var hmac = new HMACSHA512();
 
