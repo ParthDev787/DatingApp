@@ -1,0 +1,26 @@
+<div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
+    <div class="card-title justify-center text-3xl text-primary">Sign up</div>
+    <div class="card-body w-full">
+        <form #registerForm="ngForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
+            <input class="input w-full" name="email" 
+                [(ngModel)]="creds.email" placeholder="Email" required #email="ngModel">
+            <div *ngIf="email.invalid && email.touched" class="text-error text-sm">Email is required</div>
+            
+            <input class="input w-full" name="displayName" 
+                [(ngModel)]="creds.displayName" placeholder="Display name" required #displayName="ngModel">
+            <div *ngIf="displayName.invalid && displayName.touched" class="text-error text-sm">Display name is required</div>
+            
+            <input type="password" class="input w-full" name="password" 
+                [(ngModel)]="creds.password" placeholder="Password" required minlength="4" #password="ngModel">
+            <div *ngIf="password.invalid && password.touched" class="text-error text-sm">
+                <span *ngIf="password.errors?.['required']">Password is required</span>
+                <span *ngIf="password.errors?.['minlength']">Password must be at least 4 characters</span>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <button (click)="cancel()" type="button" class="btn">Cancel</button>
+                <button class="btn btn-primary" type="submit" [disabled]="registerForm.invalid">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
