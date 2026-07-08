@@ -1,0 +1,9 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-member-list',
+  imports: [],
+  templateUrl: './member-list.html',
+  styleUrls: ['./member-list.css'],
+})
+export class MemberList {}
