@@ -66,16 +66,9 @@ This project is built by following a real-world development approach with clean 
 * Improve UI/UX design
 * Add notifications system
 * Mobile responsiveness
-* Deployment (Azure / Docker)
 
 ---
 
 ## 🧑‍💻 Author
 
 **Parth**
-
----
-
-## 📬 Contact
-
-Feel free to connect with me for feedback or collaboration.
