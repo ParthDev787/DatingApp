@@ -10,22 +10,26 @@
     "Client": {
       "projectType": "application",
       "schematics": {
-          "@schematics/angular:component": {
-            "skipTests": true,
-            "path": "src"
-          },
-          "@schematics/angular:service": {
-            "skipTests": true,
-            "path": "src/core/services"
-          },
-          "@schematics/angular:guard": {
-           "skipTests": true,
-            "path": "src/core/guards" 
-          },
-          "@schematics/angular:interceptor": {
-            "skipTests": true,
-            "path": "src/core/interceptor"
-          }
+        "@schematics/angular:component": {
+          "skipTests": true,
+          "path": "src"
+        },
+        "@schematics/angular:service": {
+          "skipTests": true,
+          "path": "src/core/services"
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true,
+          "path": "src/core/guards"
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true,
+          "path": "src/core/interceptor"
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true,
+          "path": "src/features/members"
+        }
       },
       "root": "",
       "sourceRoot": "src",

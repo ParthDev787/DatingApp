@@ -28,7 +28,7 @@ namespace API.Controllers
             var user = new AppUser
             {
                 DisplayName =  register.DisplayName,
-                Email = register.Email,
+                Email = register.Email.ToLower(),
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(register.Password)),
                 PasswordSalt = hmac.Key
             };
@@ -42,7 +42,7 @@ namespace API.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto login)
         {
-            var user = await context.Users.SingleOrDefaultAsync(x => x.Email == login.Email);
+            var user = await context.Users.SingleOrDefaultAsync(x => x.Email.ToLower() == login.Email.ToLower());
             if (user == null) return Unauthorized("Invalid email address");
 
             using var hmac = new HMACSHA512(user.PasswordSalt);
