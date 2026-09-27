@@ -7,9 +7,16 @@ namespace API.Data;
 
 public class MemberRepositry(AppDbContext _context) : IMemberRepositry
 {
-   public async Task<Member?> GetMemberByIdAsync(string id)
+    public async Task<Member?> GetMemberByIdAsync(string id)
     {
         return await _context.Members.FindAsync(id);
+    }
+
+    public async Task<Member?> GetMemberForUpdate(string id)
+    {
+        return await _context.Members
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<IReadOnlyList<Member>> GetMembersAsync()
@@ -32,5 +39,10 @@ public class MemberRepositry(AppDbContext _context) : IMemberRepositry
     public void update(AppUser user)
     {
         _context.Entry(user).State = EntityState.Modified;
+    }
+
+    public void Update(Member member)
+    {
+        _context.Entry(member).State = EntityState.Modified;
     }
 }
