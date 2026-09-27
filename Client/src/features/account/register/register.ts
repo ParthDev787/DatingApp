@@ -1,4 +1,4 @@
-import { Component, inject, Input, output } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Registercreds, User } from '../../../types/user';
@@ -12,7 +12,7 @@ import { AccountService } from '../../../core/services/account-service';
 })
 export class Register {
   private accountService = inject(AccountService);
-  cancelRegister = output<boolean>();
+  @Output() cancelRegister = new EventEmitter<boolean>();
   protected creds = {} as Registercreds;
 
   register() {
