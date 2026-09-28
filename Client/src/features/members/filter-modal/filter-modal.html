@@ -1,0 +1,85 @@
+<dialog #filterModal class="modal">
+  <div class="modal-box max-w-lg bg-base-100 shadow-2xl border border-base-200 rounded-2xl">
+    <div class="flex justify-between items-center pb-2">
+      <h3 class="text-xl font-bold text-primary">Select filters</h3>
+      <button (click)="close()" class="btn btn-sm btn-circle btn-ghost">✕</button>
+    </div>
+
+    <div class="divider my-2"></div>
+
+    <div class="flex flex-col w-full gap-5 py-2">
+        <!-- Gender Selection -->
+        <div class="flex justify-between items-center">
+            <span class="font-semibold">Select gender:</span>
+            <div class="join border border-base-300 rounded-lg">
+                <button 
+                    type="button" 
+                    class="btn btn-sm join-item" 
+                    [class.btn-primary]="!memberParams().gender"
+                    (click)="memberParams().gender = undefined">
+                    All
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-sm join-item" 
+                    [class.btn-primary]="memberParams().gender === 'male'"
+                    (click)="memberParams().gender = 'male'">
+                    Male
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-sm join-item" 
+                    [class.btn-primary]="memberParams().gender === 'female'"
+                    (click)="memberParams().gender = 'female'">
+                    Female
+                </button>
+            </div>
+        </div>
+
+        <!-- Age Range -->
+        <div class="flex justify-between items-center">
+            <span class="font-semibold">Select age:</span>
+            <div class="flex items-center gap-2">
+                <input 
+                    type="number"
+                    class="input input-bordered input-sm w-20 text-center"
+                    [min]="18"
+                    [max]="100"
+                    [(ngModel)]="memberParams().minAge"
+                    name="minAge"
+                    (change)="onMinAgeChange()"
+                >
+                <span class="text-sm opacity-60">to</span>
+                <input 
+                    type="number"
+                    class="input input-bordered input-sm w-20 text-center"
+                    [min]="memberParams().minAge || 18"
+                    [max]="100"
+                    [(ngModel)]="memberParams().maxAge"
+                    name="maxAge"
+                    (change)="onMaxAgeChange()"
+                >
+            </div>
+        </div>
+
+        <!-- Order By Selection -->
+        <div class="flex justify-between items-center">
+            <span class="font-semibold">Order by:</span>
+            <select name="orderBy" class="select select-bordered select-sm w-48" [(ngModel)]="memberParams().orderBy">
+                <option value="lastActive">Last active</option>
+                <option value="created">Newest members</option>
+                <option value="all">All members</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="modal-action pt-4">
+      <button (click)="close()" type="button" class="btn btn-sm btn-ghost">Cancel</button>
+      <button (click)="submit()" type="button" class="btn btn-sm btn-primary">Submit</button>
+    </div>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="close()">Close</button>
+  </form>
+</dialog>
