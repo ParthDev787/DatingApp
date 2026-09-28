@@ -1,9 +1,14 @@
-<app-nav/>
+<app-nav />
 
-<div 
-    [class.mt-24]="router.url !== '/'"
-    [class.container]="router.url !== '/'"
+<main 
+    [class.mt-20]="router.url !== '/'"
+    [class.max-w-7xl]="router.url !== '/'"
     [class.mx-auto]="router.url !== '/'"
+    [class.px-4]="router.url !== '/'"
+    [class.sm:px-6]="router.url !== '/'"
+    [class.lg:px-8]="router.url !== '/'"
+    [class.pb-12]="router.url !== '/'"
+    [class.w-full]="router.url !== '/'"
 >
-  <router-outlet></router-outlet>
-</div>
+  <router-outlet />
+</main>

@@ -15,4 +15,10 @@ export type Registercreds = {
     email: string;
     displayName: string;
     password: string;
+    gender: string;
+    dateOfBirth: string;
+    city: string;
+    country: string;
 }
+
+export type RegisterCreds = Registercreds;

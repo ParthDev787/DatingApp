@@ -27,10 +27,18 @@ namespace API.Controllers
 
             var user = new AppUser
             {
-                DisplayName =  register.DisplayName,
+                DisplayName = register.DisplayName,
                 Email = register.Email.ToLower(),
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(register.Password)),
-                PasswordSalt = hmac.Key
+                PasswordSalt = hmac.Key,
+                Member = new Member
+                {
+                    DisplayName = register.DisplayName,
+                    Gender = register.Gender,
+                    City = register.City,
+                    Country = register.Country,
+                    DateOfBirth = register.DateOfBirth
+                }
             };
 
             context.Users.Add(user);
