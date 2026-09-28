@@ -1,1 +1,40 @@
-<p>lists works!</p>
+@if (paginatedResult(); as paginatedResult) {
+    <div class="flex flex-col w-full gap-6">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-base-100 p-4 rounded-2xl shadow-sm border border-base-200">
+            <div class="tabs tabs-box tabs-md text-primary w-fit">
+                @for (tab of tabs; track $index) {
+                    <button role="tab" class="tab" 
+                        [class.tab-active]="predicate() === tab.value"
+                        (click)="setPredicate(tab.value)"
+                    >
+                        {{tab.label}}
+                    </button>
+                }
+            </div>
+            @if (paginatedResult.metadata; as metadata) {
+                <app-paginator 
+                    [hidden]="metadata.totalCount === 0"
+                    [pageNumber]="metadata.currentPage"
+                    [pageSize]="metadata.pageSize"
+                    [totalCount]="metadata.totalCount"
+                    [totalPages]="metadata.totalPages"
+                    (pageChange)="onPageChange($event)"
+                />
+            }
+        </div>
+
+        @if (paginatedResult.items; as members) {
+            @if (members.length > 0) {
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                    @for (member of members; track member.id) {
+                        <app-member-card [member]="member" />
+                    }
+                </div>
+            } @else {
+                <div class="card bg-base-100 p-8 text-center text-lg text-base-content/70 shadow-sm border border-base-200 rounded-2xl">
+                    There are no members for this filter
+                </div>
+            }
+        }
+    </div>
+}
