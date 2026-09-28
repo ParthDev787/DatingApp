@@ -1,9 +1,82 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MessageService } from '../../core/services/message-service';
+import { PaginatedResult } from '../../types/pagination';
+import { Message } from '../../types/message';
+import { Paginator } from "../../shared/paginator/paginator";
+import { RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-messages',
-  imports: [],
+  imports: [Paginator, RouterLink, DatePipe],
   templateUrl: './messages.html',
-  styleUrl: './messages.css',
+  styleUrl: './messages.css'
 })
-export class Messages {}
+export class Messages implements OnInit {
+  private messageService = inject(MessageService);
+  protected container = signal('Inbox');
+  protected fetchedContainer = signal('Inbox');
+  protected pageNumber = signal(1);
+  protected pageSize = signal(10);
+  protected paginatedMessages = signal<PaginatedResult<Message> | null>(null);
+
+  tabs = [
+    { label: 'Inbox', value: 'Inbox' },
+    { label: 'Outbox', value: 'Outbox' },
+  ];
+
+  ngOnInit(): void {
+    this.loadMessages();
+  }
+
+  loadMessages() {
+    this.messageService.getMessages(this.container(), this.pageNumber(), this.pageSize()).subscribe({
+      next: response => {
+        this.paginatedMessages.set(response);
+        this.fetchedContainer.set(this.container());
+      }
+    });
+  }
+
+  deleteMessage(event: Event, id: string) {
+    event.stopPropagation();
+    this.messageService.deleteMessage(id).subscribe({
+      next: () => {
+        const current = this.paginatedMessages();
+        if (current?.items) {
+          this.paginatedMessages.update(prev => {
+            if (!prev) return null;
+
+            const newItems = prev.items.filter(x => x.id !== id);
+
+            return {
+              items: newItems,
+              metadata: {
+                ...prev.metadata,
+                totalCount: Math.max(0, prev.metadata.totalCount - 1)
+              }
+            };
+          });
+        }
+      }
+    });
+  }
+
+  get isInbox() {
+    return this.fetchedContainer() === 'Inbox';
+  }
+
+  setContainer(container: string) {
+    if (this.container() !== container) {
+      this.container.set(container);
+      this.pageNumber.set(1);
+      this.loadMessages();
+    }
+  }
+
+  onPageChange(event: { pageNumber: number, pageSize: number }) {
+    this.pageSize.set(event.pageSize);
+    this.pageNumber.set(event.pageNumber);
+    this.loadMessages();
+  }
+}

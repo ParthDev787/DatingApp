@@ -4,6 +4,7 @@ import { filter } from 'rxjs';
 import { AgePipe } from '../../../core/pipes/age-pipe';
 import { AccountService } from '../../../core/services/account-service';
 import { MemberService } from '../../../core/services/member-service';
+import { LikesService } from '../../../core/services/likes-service';
 
 @Component({
   selector: 'app-member-detailed',
@@ -14,6 +15,7 @@ import { MemberService } from '../../../core/services/member-service';
 export class MemberDetailed implements OnInit {
   private route = inject(ActivatedRoute);
   protected memberService = inject(MemberService);
+  protected likeService = inject(LikesService);
   private accountService = inject(AccountService);
   private router = inject(Router);
   protected title = signal<string | undefined>('Profile');
@@ -23,6 +25,25 @@ export class MemberDetailed implements OnInit {
     const routeId = this.route.snapshot.paramMap.get('id');
     return !!currentUser && (currentUser.id === currentMember?.id || currentUser.id === routeId);
   });
+  protected hasLiked = computed(() => {
+    const member = this.memberService.member();
+    return member ? this.likeService.likeIds().includes(member.id) : false;
+  });
+
+  toggleLike() {
+    const member = this.memberService.member();
+    if (!member) return;
+
+    this.likeService.toggleLike(member.id).subscribe({
+      next: () => {
+        if (this.hasLiked()) {
+          this.likeService.likeIds.update(ids => ids.filter(x => x !== member.id));
+        } else {
+          this.likeService.likeIds.update(ids => [...ids, member.id]);
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.title.set(this.route.firstChild?.snapshot?.title);
