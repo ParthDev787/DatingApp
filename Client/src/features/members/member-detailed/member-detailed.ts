@@ -36,15 +36,7 @@ export class MemberDetailed implements OnInit {
     const member = this.memberService.member();
     if (!member) return;
 
-    this.likeService.toggleLike(member.id).subscribe({
-      next: () => {
-        if (this.hasLiked()) {
-          this.likeService.likeIds.update(ids => ids.filter(x => x !== member.id));
-        } else {
-          this.likeService.likeIds.update(ids => [...ids, member.id]);
-        }
-      }
-    });
+    this.likeService.toggleLike(member.id);
   }
 
   ngOnInit(): void {
