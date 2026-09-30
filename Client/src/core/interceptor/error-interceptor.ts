@@ -26,7 +26,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }
             break;
           case 401:
-            toast.error(typeof error.error === 'string' ? error.error : 'Unauthorized');
+            if (!req.url.includes('account/refresh-token')) {
+              toast.error(typeof error.error === 'string' ? error.error : 'Unauthorized');
+            }
             break;
           case 404:
             route.navigateByUrl('/not-found');

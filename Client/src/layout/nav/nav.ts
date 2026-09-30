@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -24,6 +24,10 @@ export class Nav implements OnInit {
   protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
   protected themes = themes;
   protected loading = signal(false);
+  protected canMessage = computed(() => {
+    const roles = this.accountService.currentUser()?.roles ?? [];
+    return !roles.includes('Admin');
+  });
 
   ngOnInit(): void {
     document.documentElement.setAttribute('data-theme', this.selectedTheme());
