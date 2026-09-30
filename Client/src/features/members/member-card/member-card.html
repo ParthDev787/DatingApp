@@ -3,6 +3,10 @@
         transform hover:-translate-y-2 relative overflow-hidden rounded-2xl shadow-md border border-base-200">
     <img [src]="member?.imageUrl || '/user.png'" alt="{{member.displayName}} image" class="w-full aspect-square object-cover">
     
+    @if (isOnline()) {
+        <span class="status status-success status-xl absolute top-3 left-3 z-40"></span>
+    }
+    
     <button (click)="toggleLike($event)" class="absolute top-2 right-2 z-40 btn btn-ghost btn-circle bg-black/40 hover:bg-black/60 border-none text-white">
         <svg xmlns="http://www.w3.org/2000/svg" 
             [attr.fill]="hasLiked() ? 'red' : 'none'" 

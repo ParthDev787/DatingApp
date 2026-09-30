@@ -8,26 +8,9 @@ namespace API.Data;
 
 public class Seed
 {
-    public static async Task SeedUsers(UserManager<AppUser> userManager, AppDbContext context)
+    public static async Task SeedUsers(UserManager<AppUser> userManager)
     {
-        if (await userManager.Users.AnyAsync())
-        {
-            if (await userManager.Users.AnyAsync(x => x.Email == "admin@test.com")) return;
-
-            // Clear old records and relations if database is not cleanly seeded with Identity
-            context.Photos.RemoveRange(context.Photos);
-            context.Likes.RemoveRange(context.Likes);
-            context.Messages.RemoveRange(context.Messages);
-            context.Members.RemoveRange(context.Members);
-
-            var existingUsers = await userManager.Users.ToListAsync();
-            foreach (var user in existingUsers)
-            {
-                await userManager.DeleteAsync(user);
-            }
-
-            await context.SaveChangesAsync();
-        }
+        if (await userManager.Users.AnyAsync()) return;
 
         var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
         var members = JsonSerializer.Deserialize<List<SeedUserDto>>(memberData);
@@ -80,7 +63,12 @@ public class Seed
             DisplayName = "Admin"
         };
 
-        await userManager.CreateAsync(admin, "Pa$$w0rd");
+        var adminResult = await userManager.CreateAsync(admin, "Pa$$w0rd");
+        if (!adminResult.Succeeded)
+        {
+            Console.WriteLine(adminResult.Errors.First().Description);
+        }
+
         await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
     }
 }
