@@ -8,7 +8,6 @@ public interface IMemberRepositry
 {
     void update(AppUser user);
     void Update(Member member);
-    Task<bool> SaveAllAsync();
     Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams);
     Task<Member?> GetMemberByIdAsync(string id);
     Task<IReadOnlyList<Photo>> GetPhotosByMemberIdAsync(string memberId);

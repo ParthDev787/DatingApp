@@ -42,7 +42,7 @@
               <td class="truncate">{{message.content}}</td>
               <td class="text-sm opacity-70">{{message.messageSent | date: 'medium'}}</td>
               <td>
-                <button (click)="deleteMessage($event, message.id)" class="btn btn-circle btn-sm btn-ghost text-error hover:bg-error/10">
+                <button (click)="confirmDelete($event, message.id)" class="btn btn-circle btn-sm btn-ghost text-error hover:bg-error/10">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-5">
                     <path stroke-linecap="round" stroke-linejoin="round"

@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Nav } from '../layout/nav/nav';
-import { NgClass } from '@angular/common';
+import { ConfirmDialog } from '../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-root',
-  imports: [Nav, RouterOutlet],
+  imports: [Nav, RouterOutlet, ConfirmDialog],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

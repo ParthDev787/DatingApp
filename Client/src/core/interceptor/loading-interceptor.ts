@@ -30,6 +30,9 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Invalidate cache on mutations
   if (req.method !== 'GET') {
+    if (req.method.includes('POST') && req.url.includes('/logout')) {
+      cache.clear();
+    }
     if (req.url.includes('/likes')) invalidateCache('/likes');
     if (req.url.includes('/messages')) invalidateCache('/messages');
     if (req.url.includes('/members')) invalidateCache('/members');
