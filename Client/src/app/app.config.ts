@@ -25,9 +25,9 @@ export const appConfig: ApplicationConfig = {
       const initService = inject(InitService);
 
       return new Promise<void>((resolve) => {
-        setTimeout(() => {
+        setTimeout(async () => {
           try {
-            return lastValueFrom(initService.init());
+            await lastValueFrom(initService.init());
           } finally {
             const spalsh = document.getElementById('initial-splash');
             if (spalsh) spalsh.remove();

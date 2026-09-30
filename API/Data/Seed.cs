@@ -1,67 +1,86 @@
-using System.IO;
-using System.Security.Cryptography;
 using System.Text.Json;
 using API.DTOs;
 using API.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
 public class Seed
 {
-    public static async Task SeedUsers(AppDbContext context)
+    public static async Task SeedUsers(UserManager<AppUser> userManager, AppDbContext context)
     {
-      if(await context.Users.AnyAsync()) return;  
-
-      var seedFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "UserSeedData.json");
-      if (!File.Exists(seedFilePath))
-      {
-          throw new FileNotFoundException("Seed file not found.", seedFilePath);
-      }
-
-      var memberData = await File.ReadAllTextAsync(seedFilePath);
-      var jsonOptions = new JsonSerializerOptions
-      {
-          PropertyNameCaseInsensitive = true,
-      };
-
-      var members = JsonSerializer.Deserialize<List<SeedUserDto>>(memberData, jsonOptions);
-
-      if(members is null) return;
-
-      foreach(var member in members)
-      {
-        using var hmac = new HMACSHA512();
-
-        var user = new AppUser
+        if (await userManager.Users.AnyAsync())
         {
-            Id = member.Id,
-            Email = member.Email.ToLower(),
-            DisplayName = member.DisplayName,
-            ImageUrl = member.ImageUrl,
-            PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Pa$$w0rd")), 
-            PasswordSalt = hmac.Key,
-            Member = new Member
+            if (await userManager.Users.AnyAsync(x => x.Email == "admin@test.com")) return;
+
+            // Clear old records and relations if database is not cleanly seeded with Identity
+            context.Photos.RemoveRange(context.Photos);
+            context.Likes.RemoveRange(context.Likes);
+            context.Messages.RemoveRange(context.Messages);
+            context.Members.RemoveRange(context.Members);
+
+            var existingUsers = await userManager.Users.ToListAsync();
+            foreach (var user in existingUsers)
+            {
+                await userManager.DeleteAsync(user);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        var memberData = await File.ReadAllTextAsync("Data/UserSeedData.json");
+        var members = JsonSerializer.Deserialize<List<SeedUserDto>>(memberData);
+
+        if (members == null) return;
+
+        foreach (var member in members)
+        {
+            var user = new AppUser
             {
                 Id = member.Id,
+                Email = member.Email.ToLower(),
+                UserName = member.Email.ToLower(),
                 DisplayName = member.DisplayName,
-                Description = member.Description,
-                DateOfBirth = member.DateOfBirth,
                 ImageUrl = member.ImageUrl,
-                Gender = member.Gender,
-                City = member.City,
-                Country = member.Country,
-                Created = member.Created,
-                LastActive = member.LastActive,
-            }
-        };
+                Member = new Member
+                {
+                    Id = member.Id,
+                    DisplayName = member.DisplayName,
+                    Description = member.Description,
+                    DateOfBirth = member.DateOfBirth,
+                    ImageUrl = member.ImageUrl,
+                    Gender = member.Gender,
+                    City = member.City,
+                    Country = member.Country,
+                    Created = member.Created,
+                    LastActive = member.LastActive,
+                }
+            };
+
             user.Member.Photos.Add(new Photo
             {
                 Url = member.ImageUrl!,
-                MemberId = member.Id,
+                MemberId = member.Id
             });
-        context.Users.Add(user);
-      }      
-        await context.SaveChangesAsync();
+
+            var result = await userManager.CreateAsync(user, "Pa$$w0rd");
+            if (!result.Succeeded)
+            {
+                Console.WriteLine(result.Errors.First().Description);
+            }
+
+            await userManager.AddToRoleAsync(user, "Member");
+        }
+
+        var admin = new AppUser
+        {
+            UserName = "admin@test.com",
+            Email = "admin@test.com",
+            DisplayName = "Admin"
+        };
+
+        await userManager.CreateAsync(admin, "Pa$$w0rd");
+        await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
     }
 }
