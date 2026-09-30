@@ -1,10 +1,11 @@
-import { AfterViewChecked, Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TimeAgoPipe } from '../../../core/pipes/time-ago-pipe';
 import { MessageService } from '../../../core/services/message-service';
 import { MemberService } from '../../../core/services/member-service';
 import { AccountService } from '../../../core/services/account-service';
-import { Message } from '../../../types/message';
+import { PresenceService } from '../../../core/services/presence-service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-member-messages',
@@ -12,19 +13,34 @@ import { Message } from '../../../types/message';
   templateUrl: './member-messages.html',
   styleUrl: './member-messages.css'
 })
-export class MemberMessages implements OnInit, AfterViewChecked {
+export class MemberMessages implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLDivElement>;
   protected messageService = inject(MessageService);
   protected memberService = inject(MemberService);
   protected accountService = inject(AccountService);
+  protected presenceService = inject(PresenceService);
+  private route = inject(ActivatedRoute);
 
-  messages = signal<Message[]>([]);
   messageContent = '';
-  loading = signal(false);
   private shouldScroll = false;
 
+  constructor() {
+    effect(() => {
+      const thread = this.messageService.messageThread();
+      if (thread.length > 0) {
+        this.shouldScroll = true;
+      }
+    });
+  }
+
   ngOnInit(): void {
-    this.loadMessages();
+    this.route.parent?.paramMap.subscribe({
+      next: params => {
+        const otherUserId = params.get('id');
+        if (!otherUserId) throw new Error('Cannot connect to hub');
+        this.messageService.createHubConnection(otherUserId);
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -34,31 +50,13 @@ export class MemberMessages implements OnInit, AfterViewChecked {
     }
   }
 
-  loadMessages() {
-    const memberId = this.memberService.member()?.id;
-    if (!memberId) return;
-
-    this.loading.set(true);
-    this.messageService.getMessageThread(memberId).subscribe({
-      next: messages => {
-        this.messages.set(messages);
-        this.loading.set(false);
-        this.shouldScroll = true;
-      },
-      error: () => this.loading.set(false)
-    });
-  }
-
   sendMessage() {
     const memberId = this.memberService.member()?.id;
     if (!memberId || !this.messageContent.trim()) return;
 
-    this.messageService.sendMessage(memberId, this.messageContent.trim()).subscribe({
-      next: message => {
-        this.messages.update(msgs => [...msgs, message]);
-        this.messageContent = '';
-        this.shouldScroll = true;
-      }
+    this.messageService.sendMessage(memberId, this.messageContent.trim())?.then(() => {
+      this.messageContent = '';
+      this.shouldScroll = true;
     });
   }
 
@@ -66,5 +64,9 @@ export class MemberMessages implements OnInit, AfterViewChecked {
     if (this.scrollContainer) {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.messageService.stopHubConnection();
   }
 }

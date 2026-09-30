@@ -2,13 +2,18 @@
     <!-- Chat Header -->
     @if (memberService.member(); as member) {
     <div class="p-3 bg-base-200/50 border-b border-base-200 flex items-center gap-3">
-        <div class="avatar">
+        <div class="avatar" [class.avatar-online]="presenceService.onlineUsers().includes(member.id)">
             <div class="w-10 rounded-full ring-1 ring-primary/20">
                 <img [src]="member.imageUrl || '/user.png'" alt="{{member.displayName}}" />
             </div>
         </div>
         <div>
-            <h4 class="font-semibold text-sm">{{member.displayName}}</h4>
+            <div class="flex items-center gap-2">
+                <h4 class="font-semibold text-sm">{{member.displayName}}</h4>
+                @if (presenceService.onlineUsers().includes(member.id)) {
+                    <span class="status status-success status-xs"></span>
+                }
+            </div>
             <p class="text-xs text-base-content/60">{{member.city}}, {{member.country}}</p>
         </div>
     </div>
@@ -16,11 +21,7 @@
 
     <!-- Chat Messages Container -->
     <div #scrollContainer class="flex-1 overflow-y-auto p-4 space-y-4">
-        @if (loading()) {
-            <div class="flex justify-center items-center h-full">
-                <span class="loading loading-spinner loading-lg text-primary"></span>
-            </div>
-        } @else if (messages().length === 0) {
+        @if (messageService.messageThread().length === 0) {
             <div class="flex flex-col items-center justify-center h-full text-center text-base-content/60 py-10">
                 <div class="p-4 bg-primary/10 rounded-full mb-3 text-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
@@ -31,8 +32,8 @@
                 <p class="text-sm">Send a message below to start the conversation!</p>
             </div>
         } @else {
-            @for (message of messages(); track message.id) {
-                @if (message.senderId !== memberService.member()?.id) {
+            @for (message of messageService.messageThread(); track message.id) {
+                @if (message.currentUserSender) {
                     <!-- Current User Message (Right / chat-end) -->
                     <div class="chat chat-end">
                         <div class="chat-image avatar">
@@ -60,18 +61,17 @@
                         </div>
                     </div>
                 } @else {
-                    <!-- Other Member Message (Left / chat-start) -->
+                    <!-- Recipient Message (Left / chat-start) -->
                     <div class="chat chat-start">
-                        <div class="chat-image avatar">
+                        <div class="chat-image avatar" [class.avatar-online]="presenceService.onlineUsers().includes(message.senderId)">
                             <div class="w-9 rounded-full ring-1 ring-base-300">
                                 <img [src]="message.senderImageUrl || '/user.png'" alt="{{message.senderDisplayName}}" />
                             </div>
                         </div>
-                        <div class="chat-header text-xs font-semibold mb-1">
-                            {{message.senderDisplayName}}
-                            <span class="text-xs font-normal opacity-60 ml-1">{{message.messageSent | timeAgo}}</span>
+                        <div class="chat-header text-xs opacity-60 mb-1">
+                            {{message.senderDisplayName}} • {{message.messageSent | timeAgo}}
                         </div>
-                        <div class="chat-bubble bg-base-200 text-base-content text-sm shadow-sm">
+                        <div class="chat-bubble chat-bubble-neutral text-sm shadow-sm">
                             {{message.content}}
                         </div>
                     </div>
@@ -80,25 +80,24 @@
         }
     </div>
 
-    <!-- Chat Input Area -->
-    <div class="p-3 bg-base-200/60 border-t border-base-200">
+    <!-- Chat Input Form -->
+    <div class="p-3 bg-base-200/50 border-t border-base-200">
         <form (ngSubmit)="sendMessage()" class="flex items-center gap-2">
             <input 
                 type="text" 
-                name="messageContent"
-                [(ngModel)]="messageContent"
-                placeholder="Send a private message..."
+                name="messageContent" 
+                [(ngModel)]="messageContent" 
+                placeholder="Type a message..." 
+                class="input input-bordered flex-1 rounded-full text-sm focus:outline-primary"
                 autocomplete="off"
-                class="input input-bordered flex-1 input-md rounded-xl bg-base-100 focus:outline-primary"
-                required
             />
             <button 
                 type="submit" 
                 [disabled]="!messageContent.trim()" 
-                class="btn btn-primary btn-md rounded-xl px-5 flex items-center gap-1.5 shadow-sm">
-                <span>Send</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
-                  <path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z" />
+                class="btn btn-primary btn-circle shadow-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                    <path d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z" />
                 </svg>
             </button>
         </form>
