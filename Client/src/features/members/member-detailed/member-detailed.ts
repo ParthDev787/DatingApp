@@ -31,6 +31,10 @@ export class MemberDetailed implements OnInit {
     const member = this.memberService.member();
     return member ? this.likeService.likeIds().includes(member.id) : false;
   });
+  protected canMessage = computed(() => {
+    const roles = this.accountService.currentUser()?.roles ?? [];
+    return !roles.includes('Admin');
+  });
 
   toggleLike() {
     const member = this.memberService.member();

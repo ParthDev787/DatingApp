@@ -78,19 +78,27 @@ export class AccountService {
   logout() {
     this.http.post(this.baseUrl + 'account/logout', {}, { withCredentials: true }).subscribe({
       next: () => {
-        localStorage.removeItem('filters');
-        this.likesService.clearLikeIds();
-        clearHttpCache();
-        this.currentUser.set(null);
-        this.presenceService.stopHubConnection();
+        this.cleanUp();
+      },
+      error: () => {
+        this.cleanUp();
       }
     });
+  }
+
+  private cleanUp() {
+    localStorage.removeItem('filters');
+    this.likesService.clearLikeIds();
+    clearHttpCache();
+    this.currentUser.set(null);
+    this.presenceService.stopHubConnection();
   }
 
   private getRolesFromToken(user: User): string[] {
     const payload = user.token.split('.')[1];
     const decoded = atob(payload);
     const jsonPayload = JSON.parse(decoded);
+    if (!jsonPayload.role) return [];
     return Array.isArray(jsonPayload.role) ? jsonPayload.role : [jsonPayload.role];
   }
 }

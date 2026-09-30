@@ -24,17 +24,12 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(async () => {
       const initService = inject(InitService);
 
-      return new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          try {
-            await lastValueFrom(initService.init());
-          } finally {
-            const spalsh = document.getElementById('initial-splash');
-            if (spalsh) spalsh.remove();
-            resolve();
-          }
-        }, 500);
-      });
+      try {
+        await lastValueFrom(initService.init());
+      } finally {
+        const splash = document.getElementById('initial-splash');
+        if (splash) splash.remove();
+      }
     }),
   ],
 };
