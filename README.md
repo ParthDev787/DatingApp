@@ -98,7 +98,26 @@ graph TD
 
 ---
 
-## ⚙️ Getting Started
+## 🐳 Run with Docker (Recommended - 1-Command Startup)
+
+The easiest way to run the entire DatingApp stack (Backend API, Frontend Client, SQLite Database with auto-migration and auto-seeding) on any machine is using Docker Compose:
+
+### 1. Production Mode (Optimized Nginx + .NET Runtime)
+```bash
+docker compose up --build
+```
+- **Web Application**: Open [http://localhost:4200](http://localhost:4200)
+- **API Backend**: Available at [http://localhost:5000](http://localhost:5000)
+- **Database**: Automatically created, migrated, and seeded in a persistent Docker volume (`datingapp_db_data`).
+
+### 2. Live Development Mode (Hot-Reload with `dotnet watch` & `ng serve`)
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+---
+
+## ⚙️ Manual Local Setup (Without Docker)
 
 ### Prerequisites
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)

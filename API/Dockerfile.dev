@@ -1,0 +1,19 @@
+# ==========================================
+# ASP.NET Core 9 Web API - Development Dockerfile (dotnet watch)
+# ==========================================
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+
+EXPOSE 8080
+
+COPY ["API.csproj", "./"]
+RUN dotnet restore "API.csproj"
+
+COPY . .
+
+CMD ["dotnet", "watch", "run", "--urls", "http://+:8080", "--non-interactive"]

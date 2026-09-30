@@ -1,0 +1,48 @@
+services:
+  # ==========================================
+  # ASP.NET Core 9 Web API
+  # ==========================================
+  api:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    container_name: datingapp_api
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/datingapp.db
+      - TokenKey=super secret key super secret key super secret key super secret key
+      - CloudinarySettings__CloudName=mhuh0mag
+      - CloudinarySettings__ApiKey=887193239885211
+      - CloudinarySettings__ApiSecret=ESgmzf88bzwbiqKuZy2wPggphrc
+    volumes:
+      - datingapp_db_data:/app/data
+    ports:
+      - "5000:8080"
+    networks:
+      - datingapp_network
+
+  # ==========================================
+  # Angular 19 Client with Nginx
+  # ==========================================
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    container_name: datingapp_client
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+    networks:
+      - datingapp_network
+
+volumes:
+  datingapp_db_data:
+    name: datingapp_db_data
+
+networks:
+  datingapp_network:
+    driver: bridge

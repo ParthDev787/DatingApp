@@ -1,0 +1,47 @@
+services:
+  # ==========================================
+  # Live Development API (dotnet watch)
+  # ==========================================
+  api-dev:
+    build:
+      context: ./API
+      dockerfile: Dockerfile.dev
+    container_name: datingapp_api_dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=datingapp.db
+      - TokenKey=super secret key super secret key super secret key super secret key
+      - CloudinarySettings__CloudName=mhuh0mag
+      - CloudinarySettings__ApiKey=887193239885211
+      - CloudinarySettings__ApiSecret=ESgmzf88bzwbiqKuZy2wPggphrc
+    volumes:
+      - ./API:/app
+      - /app/obj
+      - /app/bin
+    ports:
+      - "5000:8080"
+    networks:
+      - datingapp_dev_network
+
+  # ==========================================
+  # Live Development Client (ng serve)
+  # ==========================================
+  client-dev:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile.dev
+    container_name: datingapp_client_dev
+    volumes:
+      - ./Client:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api-dev
+    networks:
+      - datingapp_dev_network
+
+networks:
+  datingapp_dev_network:
+    driver: bridge
