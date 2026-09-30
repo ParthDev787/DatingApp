@@ -482,5 +482,17 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Sensitive configuration & local secret files
 API/appsettings.json
+API/appsettings.Development.json
+API/appsettings.*.json
+!API/appsettings.Example.json
+
+# Local SQLite databases
 API/datingapp.db*
+*.db
+*.db-shm
+*.db-wal
+datingapp.db*
+
